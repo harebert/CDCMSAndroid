@@ -1,0 +1,202 @@
+package com.example.cdcms;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.io.UnsupportedEncodingException;
+import java.net.HttpURLConnection;
+import java.net.URL;
+
+import org.apache.http.*;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.*;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.json.JSONTokener;
+
+import android.R.string;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.os.AsyncTask;
+import android.os.Bundle;
+import android.text.method.*;
+import android.util.Log;
+import android.view.*;
+import android.widget.*;
+
+import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.Context;
+import android.content.Intent;
+import android.view.Menu;
+
+public class MainActivity extends Activity {
+
+	private static final String ACTIVITY_TAG = null;
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.activity_main);
+		//判断网络状态
+		TextView showResultTextView=(TextView)findViewById(R.id.showResult);
+		 if (IsNetExist()) {
+			 showResultTextView.setText("Is NetWork");
+
+		 }else{
+			 showResultTextView.setText("No NetWork");
+	        
+		 }
+	}
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		// Inflate the menu; this adds items to the action bar if it is present.
+		getMenuInflater().inflate(R.menu.main, menu);
+		return true;
+	}
+	
+	public void loginClicked(View view) throws Exception{
+		TextView usernameTextView=(TextView)findViewById(R.id.UserName);
+		TextView passwordTextView=(TextView)findViewById(R.id.PWD);
+		
+
+//		new AlertDialog.Builder(this)
+//		.setTitle("警示")
+//		.setMessage("请正确填写用户名及密码")
+//		.setPositiveButton("确定", null)
+//		.show();
+		
+		Intent goToStatusIntent=new Intent();
+		goToStatusIntent.setClass(MainActivity.this, StatusActivity.class);
+		startActivity(goToStatusIntent);
+		
+//		if(usernameTextView.getText().toString().equals("")||passwordTextView.getText().toString().equals("")){
+//			new AlertDialog.Builder(this)
+//			.setTitle("警示")
+//			.setMessage("请正确填写用户名及密码")
+//			.setPositiveButton("确定", null)
+//			.show();
+//		}else{
+////做演示需要，直接跳转
+//			Intent goToStatusIntent=new Intent();
+//			goToStatusIntent.setClass(MainActivity.this, StatusActivity.class);
+//			startActivity(goToStatusIntent);
+//			
+////直接跳转结束
+//		}
+		
+		String stringUrl = "http://app.sfls.cn/sflscc/index.html";
+        Log.i("thelink is", stringUrl);
+        if (IsNetExist()) {
+        	 new DownloadWebpageText().execute(stringUrl);
+        } else {
+        	
+        }
+		
+	}
+	
+	public void settingClicked(View view) throws Exception{
+		Intent goToStatusIntent=new Intent();
+		goToStatusIntent.setClass(MainActivity.this, SettingsActivity.class);
+		startActivity(goToStatusIntent);
+	}
+	
+	public void showPWDonClicked(View view){
+		TextView a=(TextView)findViewById(R.id.PWD);
+		CheckBox box=(CheckBox)findViewById(R.id.showPWD);
+		if(box.isChecked()){
+			a.setTransformationMethod(HideReturnsTransformationMethod.getInstance());
+		}else{
+			Log.i("myAct", a.getText().toString());
+			a.setTransformationMethod(PasswordTransformationMethod.getInstance());
+			
+		}
+	}
+	
+	public boolean IsNetExist() {
+		ConnectivityManager connMgr = (ConnectivityManager) 
+	            getSystemService(Context.CONNECTIVITY_SERVICE);
+	        NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+	        if (networkInfo != null && networkInfo.isConnected()) {
+	        	return true;
+	        }else{
+	        	return false;
+	        }
+	}
+	//开始网络连接函数编写
+	 private class DownloadWebpageText extends AsyncTask <String, Integer, String>{
+		 @Override  
+	        protected void onPreExecute() {  
+	            //第一个执行方法  
+	            super.onPreExecute();  
+	        }  
+	          
+	        @Override  
+	        protected String doInBackground(String... urls) {  
+	            //第二个执行方法,onPreExecute()执行完后执行  
+	        	 try {
+	                 return downloadUrl(urls[0]);
+	             } catch (IOException e) {
+	            	 Log.i("the error of downloadUrl is ", e.toString());
+	                 return "无法获取网页，URL可能无效！Unable to retrieve web page. URL may be invalid.";
+	             }  
+	        }  
+	  
+	        @Override  
+	        protected void onProgressUpdate(Integer... progress) {  
+	            //这个函数在doInBackground调用publishProgress时触发，虽然调用时只有一个参数  
+	            //但是这里取到的是一个数组,所以要用progesss[0]来取值  
+	            //第n个参数就用progress[n]来取值  
+	            //tv.setText(progress[0]+"%");  
+	            //super.onProgressUpdate(progress);  
+	        }  
+	        @Override  
+	        protected void onPostExecute(String result) {  
+	            //doInBackground返回时触发，换句话说，就是doInBackground执行完后触发  
+	            //这里的result就是上面doInBackground执行后的返回值，所以这里是"执行完毕"  
+	           Log.i("the result is ", result);  
+	            //super.onPostExecute(result);  
+	        }  
+	        
+	 }
+	 private String downloadUrl(String myurl) throws IOException {
+		    InputStream is = null;
+		    // 先显示获取到的前500个字节
+		    // 网页内容
+		    int len = 500;
+
+		    try {
+		        URL url = new URL(myurl);
+		        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+		        conn.setReadTimeout(1000 );
+		        conn.setConnectTimeout(1500 );
+		        conn.setRequestMethod("GET");
+		        conn.setDoInput(true);
+		        // 开始查询
+		        conn.connect();
+		        int response = conn.getResponseCode();
+		        Log.d("DEBUG_TAG", "The response is: " + response);
+		        is = conn.getInputStream();
+
+		        // 将InputStream转化为string
+		        String contentAsString = readIt(is, len);
+		        return contentAsString;
+
+		    // 确保当app用完InputStream对象后关闭它。
+		    } finally {
+		        if (is != null) {
+		            is.close();
+		        } 
+		    }
+		}
+	
+	public String readIt(InputStream stream, int len) throws IOException, UnsupportedEncodingException {
+	    Reader reader = null;
+	    reader = new InputStreamReader(stream, "UTF-8");        
+	    char[] buffer = new char[len];
+	    reader.read(buffer);
+	    return new String(buffer);
+	}
+		
+}

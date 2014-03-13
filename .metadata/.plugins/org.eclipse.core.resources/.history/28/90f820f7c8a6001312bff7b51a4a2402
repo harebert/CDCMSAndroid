@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">数讯微机管理</string>
+    <string name="action_settings">Settings</string>
+    <string name="hello_world">V 1.0</string>
+    <string name="title_activity_status">StatusActivity</string>
+    <string name="Address">1号机房1号机柜</string>
+
+</resources>

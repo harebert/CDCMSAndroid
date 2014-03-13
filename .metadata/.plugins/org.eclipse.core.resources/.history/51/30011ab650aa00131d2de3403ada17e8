@@ -1,0 +1,198 @@
+package com.example.cdcms;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.http.ProtocolException;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.os.Bundle;
+import android.text.method.HideReturnsTransformationMethod;
+import android.text.method.PasswordTransformationMethod;
+import android.util.Log;
+import android.view.Menu;
+import android.view.View;
+import android.widget.CheckBox;
+import android.widget.TextView;
+
+public class MainActivity extends Activity {
+
+	private static final String ACTIVITY_TAG = null;
+	private String loginUrlString="";
+		
+	
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.activity_main);
+		//判断网络状态
+		TextView showResultTextView=(TextView)findViewById(R.id.showResult);
+		 if (IsNetExist()) {
+			 showResultTextView.setText("Is NetWork");
+
+		 }else{
+			 showResultTextView.setText("No NetWork");
+	        
+		 }
+	}
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		// Inflate the menu; this adds items to the action bar if it is present.
+		getMenuInflater().inflate(R.menu.main, menu);
+		return true;
+	}
+	
+	public void loginClicked(View view) throws Exception{
+		TextView usernameTextView=(TextView)findViewById(R.id.UserName);
+		TextView passwordTextView=(TextView)findViewById(R.id.PWD);
+		
+
+
+		loginUrlString="http://116.247.77.190:25007/apilogin.action?userName="+usernameTextView.getText()+"&password="+passwordTextView.getText();
+		String stringUrl = "http://116.247.77.190:25007/apilogin.action?userName=test&password=1234";
+        Log.i("thelink is", stringUrl);
+        new Thread(runnable).start();
+        
+        
+        Intent goToStatusIntent=new Intent();
+		goToStatusIntent.setClass(MainActivity.this, StatusActivity.class);
+		startActivity(goToStatusIntent);
+		
+	}
+	
+	public void settingClicked(View view) throws Exception{
+		Intent goToStatusIntent=new Intent();
+		goToStatusIntent.setClass(MainActivity.this, SettingsActivity.class);
+		startActivity(goToStatusIntent);
+	}
+	
+	public void showPWDonClicked(View view){
+		TextView a=(TextView)findViewById(R.id.PWD);
+		CheckBox box=(CheckBox)findViewById(R.id.showPWD);
+		if(box.isChecked()){
+			a.setTransformationMethod(HideReturnsTransformationMethod.getInstance());
+		}else{
+			Log.i("myAct", a.getText().toString());
+			a.setTransformationMethod(PasswordTransformationMethod.getInstance());
+			
+		}
+	}
+	
+	public boolean IsNetExist() {
+		ConnectivityManager connMgr = (ConnectivityManager) 
+	            getSystemService(Context.CONNECTIVITY_SERVICE);
+	        NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+	        if (networkInfo != null && networkInfo.isConnected()) {
+	        	return true;
+	        }else{
+	        	return false;
+	        }
+	}
+	
+	Runnable runnable= new Runnable() {
+		public void run() {
+	        // TODO Auto-generated method stub
+	        String path ="http://www.weather.com.cn/data/sk/101010100.html"; 
+	        JsonUtils jsonUtils = new JsonUtils();
+	         List list= jsonUtils.getWeather(path); 
+	        Log.i("jsongString is", list.toString());
+	        if (IsNetExist()) {
+	           Log.i("net is", "connected");
+	        }else{
+	           Log.i("net is not", "connected");
+	        }
+	    }
+	};
+ 
+	public class JsonUtils {
+
+		public String getConnection(String path)  
+	            throws MalformedURLException, IOException, ProtocolException {  
+	        URL url = new URL(path);  
+	        try {  
+//	        	建立一个http连接
+	            HttpURLConnection cn = (HttpURLConnection) url.openConnection();  
+//	            5秒超时
+	            cn.setConnectTimeout(5 * 1000);  
+//	            使用Get方法传递数据
+	            cn.setRequestMethod("GET");   
+	            InputStreamReader in = new InputStreamReader(cn.getInputStream());  
+//	             流数据读取
+	            BufferedReader buff = new BufferedReader(in);  
+	            String data = buff.readLine().toString();  
+	            System.out.println("流数据data:    " + data);  
+	            buff.close();  
+	            in.close(); 
+//	            返回数据流
+	            return data;  
+	        } 
+	        catch (Exception e) {  
+	            // TODO Auto-generated catch block  
+	            e.printStackTrace();  
+	            System.out.println("查询失败,请检查网络..."); 
+	            Log.i("失败原因：", e.toString());
+	            return null;  
+	        }  
+	    }  
+		public  List<Map<String, String>> getWeather(String path) {  
+			  
+		    List<Map<String, String>> list = new ArrayList<Map<String, String>>();  
+		    String json = null;  
+		    Map<String, String> map;  	  
+		    try { 
+//		    	调用getConnection()获得数据流
+		        String line = getConnection(path);  	  
+		        if (line != null) {  
+		            json = new String(line);  
+		            // 对象的形式  
+		            JSONObject Item = new JSONObject(json);  
+		            // 得到对象中的对象  
+		            JSONObject item = Item.getJSONObject("weatherinfo");  
+		            String city = item.getString("city");  
+		            String temp = item.getString("temp");  
+		            String time = item.getString("time");    
+		            // 添加到map中  	  
+		            map = new HashMap<String, String>();  
+		            map.put("city", city);  
+		            map.put("temp", temp);    
+		            map.put("time", time); 
+		            list.add(map); 
+		        } 
+		        else { 
+		            System.out.println("获取流数据失败!");  
+		        }  
+		  
+		    } catch (MalformedURLException e) {    
+	            // TODO Auto-generated catch block    
+	            e.printStackTrace();    
+	        } catch (ProtocolException e) {    
+	            // TODO Auto-generated catch block    
+	            e.printStackTrace();    
+	        } catch (IOException e) {    
+	            // TODO Auto-generated catch block    
+	            e.printStackTrace();    
+	        } catch (JSONException e) {    
+	            // TODO Auto-generated catch block    
+	            e.printStackTrace();    
+	        }    
+	        return list;    
+		}  
+
+	}
+	      
+}

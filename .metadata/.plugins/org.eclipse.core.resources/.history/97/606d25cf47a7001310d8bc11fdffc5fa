@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:layout_gravity="center" >
+
+    <ImageView
+        android:id="@+id/imageView1"
+        android:layout_width="39dp"
+        android:layout_height="39dp"
+        
+        android:src="@drawable/settings" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+
+        <CheckBox
+            android:id="@+id/checkBox1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/rememberNamePWDTextView"
+            android:layout_marginLeft="16pt" 
+            />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+
+        <TextView
+            android:id="@+id/textView1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.11"
+            android:text="服务器地址：" 
+            android:layout_marginLeft="16pt" />
+
+        <EditText
+            android:id="@+id/editText1"
+            android:layout_width="35dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.36" 
+            android:layout_marginRight="16pt" >
+
+            <requestFocus />
+        </EditText>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+
+        <TextView
+            android:id="@+id/TextView01"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.03"
+            android:text="查看历史数据" 
+            android:layout_marginLeft="16pt" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="162dp"
+            android:layout_weight="0.21"
+            android:orientation="vertical" >
+
+            <RadioButton
+                android:id="@+id/radioButton1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="2小时" />
+
+            <RadioButton
+                android:id="@+id/radioButton2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="4小时" />
+
+            <RadioButton
+                android:id="@+id/radioButton3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="8小时" />
+
+            <RadioButton
+                android:id="@+id/radioButton4"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="24小时" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</LinearLayout>
